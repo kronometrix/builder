@@ -1830,46 +1830,27 @@ echo "" >> ${BUILD_PATH}/${BUILD_LOG}
 echo "Info: Step 2 - Installing recorders ..." |\
  tee -a ${BUILD_PATH}/${BUILD_LOG}
 
-    if [ "$PT_NAME" = "armv7l" ]; then
-        cp *rec ${iprefix}/bin
-        cp ../wsrec ${iprefix}/bin
-        cp ../webinvrec ${iprefix}/bin
-        cp ../rs485rec ${iprefix}/bin
-        cp ../ntprec ${iprefix}/bin
-        cp ../direc ${iprefix}/bin
-        cp ../certrec ${iprefix}/bin
-        cp ../raw2day ${iprefix}/bin
-        cp ../u2htime ${iprefix}/bin
-        cp ../actmsg ${iprefix}/bin
-        cp ../httprec ${iprefix}/bin
-        if [ $? -ne 0 ]; then
-            echo "Error: cannot install rec scripts !" |\
-             tee -a ${BUILD_PATH}/${BUILD_LOG}
-            rm /var/tmp/build.${module}
-            exit 3
-        else
-            step2=1
-        fi
-    else
-        cp *rec ${iprefix}/bin
-        cp ../webinvrec ${iprefix}/bin
-        cp ../ntprec ${iprefix}/bin
-        cp ../direc ${iprefix}/bin
-        cp ../certrec ${iprefix}/bin
-        cp ../raw2day ${iprefix}/bin
-        cp ../u2htime ${iprefix}/bin
-        cp ../actmsg ${iprefix}/bin
-        cp ../httprec ${iprefix}/bin
-        if [ $? -ne 0 ]; then
-            echo "Error: cannot install rec scripts !" |\
-             tee -a ${BUILD_PATH}/${BUILD_LOG}
-            rm /var/tmp/build.${module}
-            exit 3
-        else
-            step2=1
-        fi
-
-    fi
+cp *rec ${iprefix}/bin
+cp ../webinvrec ${iprefix}/bin
+cp ../ntprec ${iprefix}/bin
+cp ../direc ${iprefix}/bin
+cp ../certrec ${iprefix}/bin
+cp ../raw2day ${iprefix}/bin
+cp ../u2htime ${iprefix}/bin
+cp ../actmsg ${iprefix}/bin
+cp ../httprec ${iprefix}/bin
+if [ "$PT_NAME" = "armv7l" ]; then
+    cp ../wsrec ${iprefix}/bin
+    cp ../rs485rec ${iprefix}/bin
+fi
+if [ $? -ne 0 ]; then
+    echo "Error: cannot install rec scripts !" |\
+      tee -a ${BUILD_PATH}/${BUILD_LOG}
+    rm /var/tmp/build.${module}
+    exit 3
+else
+    step2=1
+fi
 
 # set the other bins
 cp sender ${iprefix}/bin
@@ -1885,12 +1866,16 @@ fi
 cd ../..
 cp etc/*.start ${iprefix}/etc
 if [ "$PT_NAME" != "armv7l" ]; then
-    rm etc/wsrec.start
+    rm ${iprefix}/etc/wsrec.start
 fi
-cp etc/kronometrix.json ${iprefix}/etc
+
 if [ "$PT_NAME" = "armv7l" ]; then
+    cp etc/kronometrix.k1.json ${iprefix}/etc/kronometrix.json
     cp etc/rs485rec.json ${iprefix}/etc
+else
+    cp etc/kronometrix.json ${iprefix}/etc
 fi
+
 cp etc/httprec.json ${iprefix}/etc
 cp etc/webrec.json ${iprefix}/etc
 cp etc/ntprec.json ${iprefix}/etc
@@ -1912,7 +1897,6 @@ if [ $? -ne 0 ]; then
 fi
 
 # cleanup for non arm platforms
-
 
 # final check; all 2 steps
 recs_done=`expr $step1 + $step2`
