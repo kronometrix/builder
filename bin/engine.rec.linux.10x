@@ -578,9 +578,9 @@ for lib in Digest::SHA Proc::Daemon Proc::ProcessTable Proc::PID::File JSON::XS 
            File::Tail Regexp::Common Filesys::Df Sys::Filesystem HTML::TableExtract \
            JSON HTTP::Response UUID::Tiny Carp::Assert Net::Domain::TLD \
            DateTime::Format::ISO8601 ExtUtils::PkgConfig Email::Valid \
-           Inline::MakeMaker Capture::Tiny Text::Template AnyEvent \
+           Inline::MakeMaker Capture::Tiny Text::Template AnyEvent IO::Async\
            Inline::C Date::Calc Linux::Distribution inc::Module::Install DBI \
-           Tie::IxHash IO::Interface Redis Net::DHCP::Watch \
+           Tie::IxHash IO::Interface Redis Net::DHCP::Watch Net::SNMP Mail::IMAPClient \
            File::stat File::Stat::Bits Net::NTP Filesys::DiskUsage Net::Ping
 do
     echo " CPAN module: $lib" | tee -a ${BUILD_PATH}/${BUILD_LOG}
@@ -610,8 +610,8 @@ do
     fi
 done
 
-# there are 36 perl modules install calls
-step1=`expr $step1 / 36`
+# there are 39 perl modules install calls
+step1=`expr $step1 / 39`
 
 ## final check; 1 step
 perlcpan_done=$step1
@@ -1840,6 +1840,7 @@ cp ../u2htime ${iprefix}/bin
 cp ../actmsg ${iprefix}/bin
 cp ../httprec ${iprefix}/bin
 if [ "$PT_NAME" = "armv7l" ]; then
+    cp ../axisrec ${iprefix}/bin
     cp ../wsrec ${iprefix}/bin
     cp ../rs485rec ${iprefix}/bin
 fi
@@ -1865,8 +1866,19 @@ fi
 # set etc settings
 cd ../..
 cp etc/*.start ${iprefix}/etc
+rm ${iprefix}/etc/zonerec.start
 if [ "$PT_NAME" != "armv7l" ]; then
-    rm ${iprefix}/etc/wsrec.start
+    if [ -f ${iprefix}/etc/wsrec.start ]; then
+        rm ${iprefix}/etc/wsrec.start
+    fi
+
+    if [ -f ${iprefix}/etc/rs485rec.start ]; then
+        rm ${iprefix}/etc/rs485rec.start
+    fi
+
+    if [ -f ${iprefix}/etc/axisrec.start ]; then
+        rm ${iprefix}/etc/axisrec.start
+    fi
 fi
 
 if [ "$PT_NAME" = "armv7l" ]; then

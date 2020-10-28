@@ -1247,6 +1247,7 @@ cp ../actmsg ${iprefix}/bin
 cp ../httprec ${iprefix}/bin
 
 if [ "$PT_NAME" = "aarch64" ]; then
+    cp ../axisrec ${iprefix}/bin
     cp ../wsrec ${iprefix}/bin
     cp ../rs485rec ${iprefix}/bin
 fi
@@ -1283,8 +1284,11 @@ fi
 
 cd ../..
 cp etc/*.start ${iprefix}/etc
-
+rm ${iprefix}/etc/zonerec.start
+rm ${iprefix}/etc/procrec.start
 if [ "$PT_NAME" != "aarch64" ]; then
+    rm ${iprefix}/etc/axisrec.start
+    rm ${iprefix}/etc/rs485rec.start
     rm ${iprefix}/etc/wsrec.start
 fi
 
@@ -1299,7 +1303,6 @@ cp etc/webrec.json ${iprefix}/etc
 cp etc/ntprec.json ${iprefix}/etc
 cp etc/direc.json ${iprefix}/etc
 cp etc/httprec.json ${iprefix}/etc
-cp etc/rs485rec.json ${iprefix}/etc
 cp etc/certrec.json ${iprefix}/etc
 cp etc/svcrec.json ${iprefix}/etc
 cp etc/rec ${iprefix}/etc
