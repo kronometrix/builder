@@ -574,16 +574,18 @@ echo "" >> ${BUILD_PATH}/${BUILD_LOG}
 echo "Info: Step 1 - Install Perl CPAN modules" |\
  tee -a ${BUILD_PATH}/${BUILD_LOG}
 
-for lib in Digest::SHA Proc::Daemon Proc::ProcessTable Proc::PID::File JSON::XS \
+for lib in Proc::Daemon Proc::PID::File JSON::XS \
            File::Tail Regexp::Common Filesys::Df Sys::Filesystem HTML::TableExtract \
-           JSON HTTP::Response UUID::Tiny Carp::Assert Net::Domain::TLD \
-           DateTime::Format::ISO8601 ExtUtils::PkgConfig Email::Valid \
+           JSON UUID::Tiny Carp::Assert Net::Domain::TLD \
+           DateTime::Format::ISO8601 Email::Valid \
            Inline::MakeMaker Capture::Tiny Text::Template AnyEvent IO::Async\
            Inline::C Date::Calc Linux::Distribution inc::Module::Install DBI \
-           Tie::IxHash IO::Interface Redis Net::DHCP::Watch Net::SNMP Mail::IMAPClient \
-           File::stat File::Stat::Bits Net::NTP Filesys::DiskUsage Net::Ping
+           IO::Interface Redis Net::DHCP::Watch Net::SNMP Mail::IMAPClient \
+           File::Stat::Bits Net::NTP Filesys::DiskUsage Net::Ping \
+           JSON::MaybeXS Net::HTTP LWP LWP::Authen::OAuth LWP::Authen::OAuth2 Net::OAuth2
 do
     echo " CPAN module: $lib" | tee -a ${BUILD_PATH}/${BUILD_LOG}
+
     if  [ "$lib" = "Inline::MakeMaker" -o "$lib" = "JSON::XS" -o "$lib" = "AnyEvent" ]; then
         env PERL_MM_USE_DEFAULT=1 \
         ${iprefix}/perl/bin/perl -MCPAN -e 'install "'$lib'"' >> ${BUILD_PATH}/${BUILD_LOG} 2>&1
@@ -596,6 +598,21 @@ do
             step1=`expr $step1 + 1`
             continue
         fi
+
+    elif [ "$lib" = "Net::HTTP" -o "$lib" = "LWP" ]; then
+
+        env NO_NETWORK_TESTING=1 \
+        ${iprefix}/perl/bin/perl -MCPAN -e 'install "'$lib'"' >> ${BUILD_PATH}/${BUILD_LOG} 2>&1
+        if [ $? -ne 0 ]; then
+            echo "Error: $lib installation failed !" |\
+                tee -a ${BUILD_LOG}/${module}.${version}.log
+            rm /var/tmp/build.${module}
+            exit 3
+        else
+            step1=`expr $step1 + 1`
+            continue
+        fi
+
     else
         ${iprefix}/perl/bin/perl -MCPAN -e 'install "'$lib'"' >> ${BUILD_PATH}/${BUILD_LOG} 2>&1
         if [ $? -ne 0 ]; then
